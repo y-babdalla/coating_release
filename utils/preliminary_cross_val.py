@@ -27,8 +27,7 @@ def make_predictions(
         scoring=None,
         title="",
         models=None,
-        csv=True,
-        plot=True,
+        plot=False,
         scale=True,
 ):
     """
@@ -39,8 +38,7 @@ def make_predictions(
     :param n_jobs: number of cpus used, default is 1
     :param scoring: scoring to be used for cross validation, default is "f1_macro", "roc_auc", "neg_brier_score", and "neg_log_loss" for binary classifation or "f1_macro", "precision_macro", and "recall_macro" for multiclass classification
     :param title: title of the plots and graph
-    :param models: a list of tuples (name, model), default is RF, SVM, LR, XGB, DTr, MLP, KNN ,EXTr
-    :param csv: boolean, True if csv to be saved, False if not, default is True
+    :param models: a list of tuples (name, model)
     :param plot: boolean, True if plot results, false if not, default is True
     :param scale: whether the data should be scaled
     :return: None
@@ -80,28 +78,34 @@ def make_predictions(
         r2_scores.append(ml_scores["test_r2"])
         mae_scores.append(ml_scores["test_neg_mean_absolute_error"])
 
-        if csv:
-            df_results.to_csv(f"scores/{title}-{model[0]}.csv")
-
     # Call plotting function
-    if plot:
-        r2_scores = np.stack(r2_scores)
-        r2_scores = pd.DataFrame(
-            r2_scores.T,
-            columns=[model[0] for model in models],
-        )
-        mae_scores = np.stack(mae_scores)
-        mae_scores = pd.DataFrame(
-            mae_scores.T,
-            columns=[model[0] for model in models],
-        )
 
-        scores = [
-            ("R2", r2_scores),
-            ("MAE", mae_scores),
-        ]
+    r2_scores = np.stack(r2_scores)
+    r2_scores = pd.DataFrame(
+        r2_scores.T,
+        columns=[model[0] for model in models],
+    )
+    mae_scores = np.stack(mae_scores)
+    mae_scores = pd.DataFrame(
+        mae_scores.T,
+        columns=[model[0] for model in models],
+    )
+
+    scores = [
+        ("R2", r2_scores),
+        ("MAE", mae_scores),
+    ]
+
+    if plot:
         for score in scores:
             plot_data(score[1], title=title, score=score[0])
+
+    print(r2_scores)
+    print(mae_scores)
+    exit()
+
+    return r2_scores, mae_scores
+
 
 
 # Create function for plotting results
