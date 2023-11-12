@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from lightgbm import LGBMRegressor
 from sklearn.pipeline import Pipeline
 from tqdm import tqdm
 
@@ -20,15 +21,15 @@ sns.set(style="darkgrid")
 
 
 def make_predictions(
-        X,
-        y,
-        cv=5,
-        n_jobs=1,
-        scoring=None,
-        title="",
-        models=None,
-        plot=False,
-        scale=True,
+    X,
+    y,
+    cv=5,
+    n_jobs=1,
+    scoring=None,
+    title="",
+    models=None,
+    plot=False,
+    scale=True,
 ):
     """
     Function to run ML models on the data sets
@@ -51,8 +52,8 @@ def make_predictions(
         models = [
             ("RF", RandomForestRegressor()),
             ("SVM", svm.SVR()),
-            ("XGR", XGBRegressor()),
-            ("MLP", MLPRegressor()),
+            ("XGBoost", XGBRegressor()),
+            ("LightGBM", LGBMRegressor()),
             ("KNN", KNeighborsRegressor()),
         ]
 
@@ -60,9 +61,7 @@ def make_predictions(
     mae_scores = []
     for model in tqdm(models, desc="Running ML models"):
         if scale:
-            pipeline_items = [("norm", MinMaxScaler()),
-                              ("model", model[1])
-                              ]
+            pipeline_items = [("norm", MinMaxScaler()), ("model", model[1])]
 
             regressor = Pipeline(pipeline_items)
 
@@ -72,8 +71,6 @@ def make_predictions(
         ml_scores = cross_validate(
             regressor, X, y, scoring=scoring, cv=cv, n_jobs=n_jobs
         )
-
-        df_results = pd.DataFrame(ml_scores)
 
         r2_scores.append(ml_scores["test_r2"])
         mae_scores.append(ml_scores["test_neg_mean_absolute_error"])
@@ -90,6 +87,7 @@ def make_predictions(
         mae_scores.T,
         columns=[model[0] for model in models],
     )
+    mae_scores = mae_scores * -1
 
     scores = [
         ("R2", r2_scores),
@@ -100,12 +98,7 @@ def make_predictions(
         for score in scores:
             plot_data(score[1], title=title, score=score[0])
 
-    print(r2_scores)
-    print(mae_scores)
-    exit()
-
     return r2_scores, mae_scores
-
 
 
 # Create function for plotting results
