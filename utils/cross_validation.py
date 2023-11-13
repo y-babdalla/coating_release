@@ -174,7 +174,6 @@ def nested_cross_validation(
         pickle.dump(model, file)
 
     if plot:
-        plt.style.use('seaborn-darkgrid')
         plt.figure(figsize=(10, 6))
         sns.scatterplot(all_y_test, all_y_pred, edgecolor="k", s=100, alpha=0.6)
         plt.plot(
