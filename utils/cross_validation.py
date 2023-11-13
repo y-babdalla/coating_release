@@ -18,18 +18,18 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler
 from xgboost import XGBRegressor
 
-
+import scienceplots
 
 def nested_cross_validation(
     X,
     y,
     model_name,
     num_iter=100,
-    num_loops=10,
+    num_loops=5,
     n_splits=5,
     scoring="r2",
     plot=True,
-    n_jobs=10,
+    n_jobs=1,
 ):
     """
         Perform nested cross-validation on a given dataset with specified model and parameters.
@@ -57,6 +57,7 @@ def nested_cross_validation(
         Returns:
         pandas DataFrame containing metrics for each fold.
     """
+    plt.style.use(["science", "no-latex"])
 
     if model_name == "lightGBM":
         model = LGBMRegressor(verbosity=-1)
@@ -175,7 +176,7 @@ def nested_cross_validation(
     if plot:
         plt.style.use('seaborn-darkgrid')
         plt.figure(figsize=(10, 6))
-        sns.scatterplot(all_y_test, all_y_pred, edgecolor="k", s=100, colour='blue', alpha=0.6)
+        sns.scatterplot(all_y_test, all_y_pred, edgecolor="k", s=100, alpha=0.6)
         plt.plot(
             [min(all_y_test), max(all_y_test)],
             [min(all_y_test), max(all_y_test)],
