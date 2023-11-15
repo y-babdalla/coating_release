@@ -2,16 +2,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.signal import savgol_filter
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
 
-def process_spectrum_dataframe(df, downsample=None, label=True):
+def process_spectrum_dataframe(df, downsample=None, label=True, normalise=False):
     columns_to_keep = ["medium", "time", "release", "index"]
     columns_to_process = df.drop(columns=columns_to_keep).columns
 
     if label:
         le = LabelEncoder()
         df["medium"] = le.fit_transform(df["medium"])
+
+    if normalise:
+        scaler = MinMaxScaler()
+        "df = scaler.fit_transform(df)"
+        ...
 
     processed_df = pd.DataFrame()
 

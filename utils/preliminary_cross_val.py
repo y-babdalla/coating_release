@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from lightgbm import LGBMRegressor
+from sklearn.cross_decomposition import PLSRegression
 from sklearn.pipeline import Pipeline
 from tqdm import tqdm
 
@@ -30,6 +31,7 @@ def make_predictions(
     models=None,
     plot=False,
     scale=True,
+    pls=None,
 ):
     """
     Function to run ML models on the data sets
@@ -62,9 +64,10 @@ def make_predictions(
     for model in tqdm(models, desc="Running ML models"):
         if scale:
             pipeline_items = [("norm", MinMaxScaler()), ("model", model[1])]
-
             regressor = Pipeline(pipeline_items)
-
+        elif pls is not None:
+            pipeline_items = [("norm", MinMaxScaler()), ("pls", PLSRegression(n_components=pls)), ("model", model[1])]
+            regressor = Pipeline(pipeline_items)
         else:
             regressor = model[1]
 
@@ -88,6 +91,9 @@ def make_predictions(
         columns=[model[0] for model in models],
     )
     mae_scores = mae_scores * -1
+
+    r2_scores.to_csv(f"scores/{title}_r2_score.csv")
+    mae_scores.to_csv(f"scores/{title}_mae_score.csv")
 
     scores = [
         ("R2", r2_scores),

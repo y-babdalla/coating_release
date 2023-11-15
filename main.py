@@ -15,7 +15,7 @@ from utils.preliminary_cross_val import make_predictions
 from utils.process_spectra import process_spectrum_dataframe
 
 
-downsample_values = [15, 16, 17, 18, 19, 20]
+downsample_values = [1, 5, 10, 15, 20, 25, 30]
 
 random_seed = 42
 df = pd.read_excel("data/coating_release.xlsx", sheet_name="full")

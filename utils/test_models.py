@@ -52,12 +52,20 @@ def test_models(
         lw=2,
     )
 
-    plt.text(0.7, 0.1, f'Pearson\'s r: {correlation:.2f}',
+    plt.text(0.9, 0.1, f'Pearson\'s r: {correlation:.2f}',
              fontsize=14,
              ha='right',
              va='bottom',
              transform=plt.gca().transAxes,
              bbox=dict(facecolor='white', alpha=0.5))
+
+    plt.text(0.9, 0.03, f'R2: {r2:.2f}',
+             fontsize=14,
+             ha='right',
+             va='bottom',
+             transform=plt.gca().transAxes,
+             bbox=dict(facecolor='white', alpha=0.5))
+
 
     plt.xlabel("Actual Values", fontsize=12)
     plt.ylabel("Predicted Values", fontsize=12)
@@ -65,4 +73,4 @@ def test_models(
     plt.savefig(f"plots/test_predicted_vs_real_{model_name}.png")
     plt.show()
 
-    return {"r2": r2, "mae": mae, "mse": mse}
+    return {"r2": r2, "mae": mae, "mse": mse}, list(y_pred)

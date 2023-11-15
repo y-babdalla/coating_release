@@ -16,20 +16,23 @@ from sklearn.model_selection import KFold, train_test_split
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.cross_decomposition import PLSRegression
 from xgboost import XGBRegressor
 
 import scienceplots
 
+
 def nested_cross_validation(
-    X,
-    y,
-    model_name,
-    num_iter=100,
-    num_loops=5,
-    n_splits=5,
-    scoring="r2",
-    plot=True,
-    n_jobs=1,
+        X,
+        y,
+        model_name,
+        num_iter=100,
+        num_loops=5,
+        n_splits=5,
+        scoring="r2",
+        plot=True,
+        n_jobs=10,
+        pls=None
 ):
     """
         Perform nested cross-validation on a given dataset with specified model and parameters.
@@ -114,6 +117,8 @@ def nested_cross_validation(
 
     results = []
     scaler = MinMaxScaler()
+    if pls is not None:
+        plsr = PLSRegression(n_components=pls)
     all_y_test, all_y_pred = [], []
     best_model_params = None
     best_score = 0
@@ -123,8 +128,16 @@ def nested_cross_validation(
             X, y, test_size=0.3, random_state=i
         )
         scaler.fit(X_train)
-        X_train_scaled = scaler.transform(X_train)
-        X_test_scaled = scaler.transform(X_test)
+        X_train_scaled = pd.DataFrame(scaler.transform(X_train), columns=X_train.columns)
+        X_test_scaled = pd.DataFrame(scaler.transform(X_test), columns=X_train.columns)
+
+        if pls is not None:
+            plsr.fit(X_train_scaled.loc[:, 2001.063477:158.482422], y_train)
+            X_train_new = pd.DataFrame(plsr.transform(X_train_scaled.loc[:, 2001.063477:158.482422]))
+            X_test_new = pd.DataFrame(plsr.transform(X_test_scaled.loc[:, 2001.063477:158.482422]))
+            X_train_scaled = np.array(pd.concat([X_train_new, X_train_scaled.loc[:, "medium":"time"]], axis=1))
+            X_test_scaled = np.array(pd.concat([X_test_new, X_test_scaled.loc[:, "medium":"time"]], axis=1))
+
 
         cv_inner = KFold(n_splits=n_splits)
         search = RandomizedSearchCV(
@@ -161,16 +174,23 @@ def nested_cross_validation(
             }
         )
 
-
     results_df = pd.DataFrame(results)
-    results_df.to_csv(f"scores/{model_name}_cv_scores.csv")
+    results_df.to_csv(f"scores/{model_name}_cv_scores_plsr.csv")
 
     # Re-fit the best model on the entire dataset
-    X_scaled = scaler.fit_transform(X)
+    X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
+
+    if pls is not None:
+        plsr.fit(X_scaled.loc[:, 2001.063477:158.482422], y_train)
+        X_scaled_new = pd.DataFrame(plsr.transform(X_scaled.loc[:, 2001.063477:158.482422]))
+        X_scaled = np.array(pd.concat([X_scaled_new, X_scaled.loc[:, "medium":"time"]], axis=1))
+
+
     best_model = model.set_params(**best_model_params)
     best_model.fit(X_scaled, y)
 
-    with open(f'models/best_{model_name}.pkl', 'wb') as file:
+
+    with open(f'models/best_{model_name}_plsr.pkl', 'wb') as file:
         pickle.dump(model, file)
 
     if plot:
@@ -185,8 +205,7 @@ def nested_cross_validation(
         plt.xlabel("Actual Values", fontsize=12)
         plt.ylabel("Predicted Values", fontsize=12)
         plt.title(f"Actual vs Predicted - {model_name}", fontsize=14)
-        plt.savefig(f"plots/predicted_vs_real_{model_name}.png")
+        plt.savefig(f"plots/predicted_vs_real_{model_name}_plsr.png")
         plt.show()
 
     return results_df
-

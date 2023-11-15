@@ -45,7 +45,7 @@ print(X_test)
 
 plt.style.use(["science", "no-latex", 'seaborn-darkgrid'])
 
-with open(f'models/best_lightGBM.pkl', 'rb') as file:
+with open(f'models/best_XGBoost.pkl', 'rb') as file:
     model = pickle.load(file)
 
 pred = model.predict(X_test, output_margin=True)
@@ -55,7 +55,7 @@ shap_values = explainer.shap_values(X_test)
 shap.summary_plot(shap_values, X_test, plot_type="bar")
 
 shap.summary_plot(shap_values, X_test, show=False)
-plt.savefig(f"shap/shap_lightGBM.png")
+plt.savefig(f"shap/shap_XGBoost.png")
 plt.show()
 
 
