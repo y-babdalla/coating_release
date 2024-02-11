@@ -12,14 +12,12 @@ from tqdm import tqdm
 
 from sklearn.ensemble import RandomForestRegressor
 from sklearn import svm
-from sklearn.neural_network import MLPRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.model_selection import cross_validate, cross_val_score
 from xgboost import XGBRegressor
 from sklearn.preprocessing import MinMaxScaler
 
-sns.set(style="darkgrid")
-
+import scienceplots
 
 def make_predictions(
     X,
@@ -30,7 +28,7 @@ def make_predictions(
     title="",
     models=None,
     plot=False,
-    scale=True,
+    scale=False,
     pls=None,
 ):
     """
@@ -92,8 +90,8 @@ def make_predictions(
     )
     mae_scores = mae_scores * -1
 
-    r2_scores.to_csv(f"scores/{title}_r2_score.csv")
-    mae_scores.to_csv(f"scores/{title}_mae_score.csv")
+    r2_scores.to_csv(f"new/{title}_r2_score.csv")
+    mae_scores.to_csv(f"new/{title}_mae_score.csv")
 
     scores = [
         ("R2", r2_scores),
@@ -116,12 +114,15 @@ def plot_data(df, title, score):
     :param score: Machine Learning scoring used
     :return: None
     """
+    sns.set(style="whitegrid")
+    plt.style.use(["science", "no-latex"])
+    plt.figure(figsize=(10, 7.5))
     df = pd.DataFrame(df.stack(), index=None)
     df = df.reset_index().drop(["level_0"], axis=1)
     df.rename(columns={0: f"{score}", "level_1": "Model"}, inplace=True)
-
-    sns.boxplot(x="Model", y=f"{score}", data=df)
-    plt.ylim(0, 1)
-    plt.title(f"{title}")
-    plt.savefig(f"plots/{title}-{score}.png")
+    plt.rcParams.update({'font.size': 22})
+    sns.boxplot(x="Model", y=f"{score}", data=df,  palette="Set2")
+    plt.ylim(-0.25, 1)
+    # plt.title(f"{title}")
+    plt.savefig(f"new/{title}-{score}.png")
     plt.show()

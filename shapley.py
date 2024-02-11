@@ -9,8 +9,6 @@ import shap
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 
-from utils.test_models import test_models
-
 
 from utils.process_spectra import process_spectrum_dataframe
 import scienceplots
@@ -43,7 +41,7 @@ X_test = scaler.transform(X_test)
 X_test = pd.DataFrame(X_test, columns=X_train.columns)
 print(X_test)
 
-plt.style.use(["science", "no-latex", 'seaborn-darkgrid'])
+plt.style.use(["science", "no-latex"])
 
 with open(f'models/best_XGBoost.pkl', 'rb') as file:
     model = pickle.load(file)
@@ -51,16 +49,17 @@ with open(f'models/best_XGBoost.pkl', 'rb') as file:
 pred = model.predict(X_test, output_margin=True)
 explainer = shap.TreeExplainer(model)
 shap_values = explainer.shap_values(X_test)
-
+plt.rcParams.update({'font.size': 18})
 shap.summary_plot(shap_values, X_test, plot_type="bar")
 
 shap.summary_plot(shap_values, X_test, show=False)
-plt.savefig(f"shap/shap_XGBoost.png")
+plt.savefig(f"shap/shap_XGBoost.png", dpi=600)
 plt.show()
 
 
 for name in X_train.columns:
+    plt.rcParams.update({'font.size': 18})
     shap.dependence_plot(name, shap_values, X_test, display_features=X_test)
-    plt.savefig(f"shap/shap_dependence_{name}.png")
+    plt.savefig(f"shap/shap_dependence_{name}.png", dpi=600)
     plt.show()
 

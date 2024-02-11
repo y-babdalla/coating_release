@@ -1,9 +1,10 @@
+from matplotlib.ticker import MaxNLocator, FuncFormatter, MultipleLocator
 from sklearn.preprocessing import MinMaxScaler
 
 
 import pandas as pd
 import numpy as np
-
+import seaborn as sns
 
 import matplotlib.pyplot as plt
 
@@ -13,9 +14,8 @@ import warnings
 from scipy.signal import find_peaks
 warnings.filterwarnings('ignore')
 
-
 scaler = MinMaxScaler()
-
+plt.style.use(["science", "no-latex"])
 random_seed = 42
 df = pd.read_excel("data/coating_release.xlsx", sheet_name="test_media")
 data = df.drop(["polysaccharide name"], axis=1)
@@ -29,19 +29,21 @@ for spectrum in X:
     peaks, _ = find_peaks(spectrum, height=0.1)
     # Adjust the height as needed
     peak_counts.append(len(peaks))
-    print(peak_counts)
 
+table = pd.DataFrame([])
+table["name"] = list(df["polysaccharide name"])
+table["peaks"]  = peak_counts
 # Creating a bar plot
-plt.figure(figsize=(14, 8))
-plt.bar(list(df["polysaccharide name"]), peak_counts)
-plt.xlabel('Coating')
-plt.xticks(rotation=90, fontsize=8)
+plt.figure(figsize=(12, 12))
+plt.rcParams.update({'font.size': 20})
+sns.barplot(x='name', y='peaks', data=table, ci=90, capsize=.1, palette="Set2")
+# plt.bar(list(df["polysaccharide name"]), peak_counts, palette="Set2")
+plt.xticks(rotation=90, fontsize=20)
 plt.tight_layout()
-plt.ylabel('Number of Peaks')
-plt.title('Number of Peaks in Each Raman Spectrum')
-plt.savefig("plots/peaks_train.png")
+plt.gca().yaxis.set_major_locator(MultipleLocator(2))
+plt.ylabel('Number of Peaks', fontsize=20)
+plt.savefig("plots/raman/peaks_test.png")
 plt.show()
-
 
 # Detecting peaks and collecting their locations
 peak_locations = []
@@ -49,24 +51,24 @@ for spectrum in X:
     peaks, _ = find_peaks(spectrum, height=0.1)
     peak_locations.extend(peaks)
 
-# Number of bins
-num_bins = 100
-
 # Create a larger figure to accommodate the rotated labels
+plt.rcParams.update({'font.size': 18})
 plt.figure(figsize=(12, 6))
 
-# Creating a histogram of peak locations
-n, bins, patches = plt.hist(peak_locations, bins=num_bins, alpha=0.75)
+# Creating a KDE plot of peak locations
+sns.kdeplot(peak_locations, bw_adjust=0.25, fill=True)
+
 
 # Setting labels and title
-plt.xlabel('Peak Location (Wavenumber)')
-plt.ylabel('Frequency of Peaks')
+plt.xlabel('Peak Location (cm-1)')
+plt.ylabel('Density')
+plt.rcParams.update({'font.size': 18})
+plt.ylim(0, 0.002)
+
+
 plt.title('Distribution of Peak Locations in Raman Spectra')
 
-# Adjust layout to prevent clipping of labels
-plt.tight_layout()
-
-plt.savefig("plots/peak_locations_test.png")
+plt.savefig("plots/raman/peak_locations_train.png")
 
 # Show plot
 plt.show()

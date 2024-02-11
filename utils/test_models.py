@@ -16,10 +16,11 @@ from scipy.stats import pearsonr
 
 import scienceplots
 
+
 def test_models(
-    X,
-    y,
-    model_name,
+        X,
+        y,
+        model_name,
 ):
     """
         Perform nested cross-validation on a given dataset with specified model and parameters.
@@ -65,7 +66,6 @@ def test_models(
              va='bottom',
              transform=plt.gca().transAxes,
              bbox=dict(facecolor='white', alpha=0.5))
-
 
     plt.xlabel("Actual Values", fontsize=12)
     plt.ylabel("Predicted Values", fontsize=12)

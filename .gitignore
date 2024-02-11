@@ -161,5 +161,12 @@ cython_debug/
 /playground/
 /plots/
 /scores/
-/shap/
+/plots/shap/
 /models/
+/new/
+/playground/run_best_models_ig.py
+/playground/combined_box_plot.py
+/shap/
+/release_plots/
+/data/coating_release_full.xlsx
+/data/test_predictions_full.xlsx

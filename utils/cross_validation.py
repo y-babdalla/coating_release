@@ -206,6 +206,7 @@ def nested_cross_validation(
         plt.ylabel("Predicted Values", fontsize=12)
         plt.title(f"Actual vs Predicted - {model_name}", fontsize=14)
         plt.savefig(f"plots/predicted_vs_real_{model_name}_plsr.png")
+
         plt.show()
 
     return results_df
