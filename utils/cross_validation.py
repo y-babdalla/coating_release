@@ -125,7 +125,7 @@ def nested_cross_validation(
 
     for i in range(num_loops):
         X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.3, random_state=i
+            X, y, test_size=0.2, random_state=i
         )
         scaler.fit(X_train)
         X_train_scaled = pd.DataFrame(scaler.transform(X_train), columns=X_train.columns)
@@ -175,7 +175,7 @@ def nested_cross_validation(
         )
 
     results_df = pd.DataFrame(results)
-    results_df.to_csv(f"scores/{model_name}_cv_scores_plsr.csv")
+    results_df.to_csv(f"new/{model_name}_cv_scores.csv")
 
     # Re-fit the best model on the entire dataset
     X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
@@ -190,7 +190,7 @@ def nested_cross_validation(
     best_model.fit(X_scaled, y)
 
 
-    with open(f'models/best_{model_name}_plsr.pkl', 'wb') as file:
+    with open(f'models/best_{model_name}_new.pkl', 'wb') as file:
         pickle.dump(model, file)
 
     if plot:
@@ -205,7 +205,7 @@ def nested_cross_validation(
         plt.xlabel("Actual Values", fontsize=12)
         plt.ylabel("Predicted Values", fontsize=12)
         plt.title(f"Actual vs Predicted - {model_name}", fontsize=14)
-        plt.savefig(f"plots/predicted_vs_real_{model_name}_plsr.png")
+        plt.savefig(f"new/predicted_vs_real_{model_name}_plsr.png")
 
         plt.show()
 

@@ -6,7 +6,7 @@ import seaborn as sns
 
 import matplotlib.pyplot as plt
 
-# from utils.cross_validation import nested_cross_validation
+from utils.cross_validation import nested_cross_validation
 
 
 from utils.process_spectra import process_spectrum_dataframe
@@ -33,10 +33,10 @@ def plot_scores(plot_data, score_types):
 model_names = ["lightGBM", "XGBoost", "KNN", "SVM", "RF"]
 
 random_seed = 42
-df = pd.read_excel("data/coating_release.xlsx", sheet_name="full")
+df = pd.read_excel("data/coating_release.xlsx", sheet_name="all_data")
 df = df.drop(["polysaccharide name"], axis=1)
 
-data = process_spectrum_dataframe(df, downsample=15)
+data = process_spectrum_dataframe(df, downsample=20)
 X = data.drop(["release", "index"], axis=1)
 y = data["release"]
 
@@ -44,7 +44,7 @@ y = data["release"]
 scores_data = {model: {score: [] for score in ["R2 Score", "MAE", "MSE"]} for model in model_names}
 
 for model_name in tqdm(model_names, desc="Models"):
-    results_df = pd.read_csv(f"scores/{model_name}_cv_scores.csv")
+    results_df = nested_cross_validation(X, y, model_name=model_name)
     scores_data[model_name]["R2 Score"].extend(results_df["R2 Score"].tolist())
     scores_data[model_name]["MAE"].extend(results_df["MAE"].tolist())
     scores_data[model_name]["MSE"].extend(results_df["MSE"].tolist())
