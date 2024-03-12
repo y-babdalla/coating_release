@@ -5,18 +5,13 @@ from scipy.signal import savgol_filter
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
 
-def process_spectrum_dataframe(df, downsample=None, label=True, normalise=False, new=False):
+def process_spectrum_dataframe(df, downsample=None, label=True):
     columns_to_keep = ["medium", "time", "release", "index"]
     columns_to_process = df.drop(columns=columns_to_keep).columns
 
     if label:
         le = LabelEncoder()
         df["medium"] = le.fit_transform(df["medium"])
-
-    if normalise:
-        scaler = MinMaxScaler()
-        "df = scaler.fit_transform(df)"
-        ...
 
     processed_df = pd.DataFrame()
 
@@ -25,7 +20,7 @@ def process_spectrum_dataframe(df, downsample=None, label=True, normalise=False,
         row_to_process = row[columns_to_process].astype("float64")
 
         row_smoothed_downsampled = process_individual_spectrum(
-            row_to_process, downsample=downsample, new=new
+            row_to_process, downsample=downsample,
         )
 
         # Apply the same downsampling to the column labels
@@ -45,11 +40,8 @@ def process_spectrum_dataframe(df, downsample=None, label=True, normalise=False,
     return processed_df
 
 
-def process_individual_spectrum(df, plot=False, downsample=15, new=False):
-    if new:
-        x = pd.read_excel("data/coating_release.xlsx", sheet_name="x_2")["x"]
-    else:
-        x = pd.read_excel("data/coating_release.xlsx", sheet_name="x")["x"]
+def process_individual_spectrum(df, plot=False, downsample=15):
+    x = pd.read_excel("data/coating_release.xlsx", sheet_name="x")["x"]
 
     # Correct the baseline
     coefficients = np.polyfit(x, df, 3)

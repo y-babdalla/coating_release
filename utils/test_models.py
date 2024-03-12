@@ -35,7 +35,7 @@ def test_models(
     """
     plt.style.use(["science", "no-latex", 'seaborn-darkgrid'])
 
-    with open(f'models/best_{model_name}.pkl', 'rb') as file:
+    with open(f'models/best_{model_name}_new.pkl', 'rb') as file:
         loaded_model = pickle.load(file)
     y_pred = loaded_model.predict(X)
 
@@ -70,7 +70,7 @@ def test_models(
     plt.xlabel("Actual Values", fontsize=12)
     plt.ylabel("Predicted Values", fontsize=12)
     plt.title(f"Actual vs Predicted - {model_name}", fontsize=14)
-    plt.savefig(f"plots/test_predicted_vs_real_{model_name}.png")
+    plt.savefig(f"new/valid/test_predicted_vs_real_{model_name}.png")
     plt.show()
 
     return {"r2": r2, "mae": mae, "mse": mse}, list(y_pred)

@@ -20,17 +20,17 @@ plt.style.use(["science", "no-latex"])
 model_names = ["lightGBM", "XGBoost", "KNN", "SVM", "RF"]
 
 random_seed = 42
-df = pd.read_excel("data/coating_release.xlsx", sheet_name="full")
+df = pd.read_excel("data/coating_release.xlsx", sheet_name="all_data")
 df = df.drop(["polysaccharide name"], axis=1)
 
-data = process_spectrum_dataframe(df, downsample=15, label=False)
+data = process_spectrum_dataframe(df, downsample=20, label=False)
 X_train = data.drop(["release", "index"], axis=1)
 y_train = data["release"]
 
 test_full = pd.read_excel("data/coating_release.xlsx", sheet_name="test")
 test = test_full.drop(["polysaccharide name"], axis=1)
 
-test = process_spectrum_dataframe(test, downsample=15, label=False)
+test = process_spectrum_dataframe(test, downsample=20, label=False)
 X_test = test.drop(["release", "index"], axis=1)
 y_test = np.array(test["release"])
 
@@ -50,11 +50,11 @@ for model_name in tqdm(model_names, desc="Models"):
 
     test_full[f"{model_name}_pred"] = pred
 
-test_full.to_csv("test_predictions.csv")
+test_full.to_csv("data/new_test_predictions.csv")
 
 
 metrics_df = pd.DataFrame(metrics_results).T
-metrics_df.to_csv("scores/test_scores.csv")
+metrics_df.to_csv("new/valid/valid_test_scores.csv")
 
 for metric in ['r2', 'mae', 'mse']:
     plt.figure(figsize=(10, 6))
@@ -63,5 +63,5 @@ for metric in ['r2', 'mae', 'mse']:
     plt.ylabel(metric)
     plt.xlabel('Model')
     plt.xticks(rotation=45)
-    plt.savefig(f"plots/test_{metric}_performance.png")
+    plt.savefig(f"new/valid/test_{metric}_performance.png")
     plt.show()

@@ -17,11 +17,11 @@ warnings.filterwarnings('ignore')
 scaler = MinMaxScaler()
 plt.style.use(["science", "no-latex"])
 random_seed = 42
-df = pd.read_excel("data/coating_release.xlsx", sheet_name="test_media")
+df = pd.read_excel("data/coating_release.xlsx", sheet_name="train_media")
 data = df.drop(["polysaccharide name"], axis=1)
 
 data = process_spectrum_dataframe(data, downsample=1)
-X = np.array(data.drop(["release", "index", "medium", "time"], axis=1))
+X = np.array(data.drop(["index"], axis=1))
 
 # Detecting peaks in each spectrum
 peak_counts = []
@@ -42,7 +42,7 @@ plt.xticks(rotation=90, fontsize=20)
 plt.tight_layout()
 plt.gca().yaxis.set_major_locator(MultipleLocator(2))
 plt.ylabel('Number of Peaks', fontsize=20)
-plt.savefig("plots/raman/peaks_test.png")
+plt.savefig("new/peaks_train.png")
 plt.show()
 
 # Detecting peaks and collecting their locations
@@ -68,7 +68,7 @@ plt.ylim(0, 0.002)
 
 plt.title('Distribution of Peak Locations in Raman Spectra')
 
-plt.savefig("plots/raman/peak_locations_train.png")
+plt.savefig("new/peak_locations_train.png")
 
 # Show plot
 plt.show()
