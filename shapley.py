@@ -17,17 +17,17 @@ warnings.filterwarnings('ignore')
 plt.style.use(["science", "no-latex"])
 
 random_seed = 42
-df = pd.read_excel("data/coating_release.xlsx", sheet_name="full")
+df = pd.read_excel("data/coating_release.xlsx", sheet_name="all_data")
 df = df.drop(["polysaccharide name"], axis=1)
 
-data = process_spectrum_dataframe(df, downsample=15, label=False)
+data = process_spectrum_dataframe(df, downsample=20, label=False)
 X_train = data.drop(["release", "index"], axis=1)
 y_train = data["release"]
 
 test = pd.read_excel("data/coating_release.xlsx", sheet_name="test")
 test = test.drop(["polysaccharide name"], axis=1)
 
-test = process_spectrum_dataframe(test, downsample=15, label=False)
+test = process_spectrum_dataframe(test, downsample=20, label=False)
 X_test = test.drop(["release", "index"], axis=1)
 y_test = np.array(test["release"])
 
@@ -43,23 +43,17 @@ print(X_test)
 
 plt.style.use(["science", "no-latex"])
 
-with open(f'models/best_XGBoost.pkl', 'rb') as file:
+with open(f'models/best_RF_new.pkl', 'rb') as file:
     model = pickle.load(file)
 
-pred = model.predict(X_test, output_margin=True)
+pred = model.predict(X_test)
 explainer = shap.TreeExplainer(model)
 shap_values = explainer.shap_values(X_test)
 plt.rcParams.update({'font.size': 18})
 shap.summary_plot(shap_values, X_test, plot_type="bar")
+# plt.savefig(f"new/shap_RF_summ.png", dpi=600)
 
-shap.summary_plot(shap_values, X_test, show=False)
-plt.savefig(f"shap/shap_XGBoost.png", dpi=600)
+shap.summary_plot(shap_values, X_test, show=True)
+# plt.savefig(f"new/shap_RF.png", dpi=600)
 plt.show()
-
-
-for name in X_train.columns:
-    plt.rcParams.update({'font.size': 18})
-    shap.dependence_plot(name, shap_values, X_test, display_features=X_test)
-    plt.savefig(f"shap/shap_dependence_{name}.png", dpi=600)
-    plt.show()
 
