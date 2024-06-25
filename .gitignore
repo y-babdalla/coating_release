@@ -176,3 +176,4 @@ cython_debug/
 /playground/trial.py
 /playground/k_means.py
 /playground/k_means_raman.py
+/plot.py

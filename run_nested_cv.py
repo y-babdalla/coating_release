@@ -6,7 +6,6 @@ import seaborn as sns
 
 import matplotlib.pyplot as plt
 
-from utils.cross_validation import nested_cross_validation
 
 
 from utils.process_spectra import process_spectrum_dataframe
@@ -17,20 +16,36 @@ plt.style.use(["science", "no-latex"])
 
 def plot_scores(plot_data, score_types):
     sns.set(style="whitegrid")
-    font = 22
+    font = 26
     plt.rcParams.update({'font.size': font})
-    for score_type in score_types:
-        plt.figure(figsize=(12, 8))
-        sns.boxplot(x="Model", y=score_type, data=plot_data[score_type], palette="Set2")
-        # plt.title(f'Box Plot of {score_type} for Different Models')
-        plt.ylabel(score_type, fontsize=font)
-        plt.xlabel('Model', fontsize=font)
-        plt.xticks(fontsize=font)
-        plt.yticks(fontsize=font)
-        plt.savefig(f'new/model_summary_{score_type}.png')
-        plt.show()
 
-model_names = ["lightGBM", "XGBoost", "KNN", "SVM", "RF"]
+    fig, axes = plt.subplots(1, 3, figsize=(36, 10))
+
+    for i, score_type in enumerate(score_types):
+        ax = axes[i]
+
+        sns.stripplot(x="Model", y=score_type, data=plot_data[score_type], dodge=True, marker='o', alpha=0.7,
+                      color='black', ax=ax)
+
+        sns.pointplot(x="Model", y=score_type, data=plot_data[score_type], dodge=0.5, join=False, capsize=0.2, ci='sd',
+                      scale=2, marker="o", errwidth=2, ax=ax, palette="Set2")
+
+        ax.set_title(f'{score_type}', fontsize=font)
+        ax.set_xlabel('Model', fontsize=font)
+        ax.set_ylabel(score_type, fontsize=font)
+        ax.tick_params(axis='x', labelsize=font)
+        ax.tick_params(axis='y', labelsize=font)
+
+        ax.grid(False)
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Save and show plot
+    plt.savefig(f'new/model_summary_grid.png', dpi=300)
+    plt.show()
+
+model_names = ["LightGBM", "XGBoost", "KNN", "SVM", "RF"]
 
 random_seed = 42
 df = pd.read_excel("data/coating_release.xlsx", sheet_name="all_data")
@@ -44,7 +59,7 @@ y = data["release"]
 scores_data = {model: {score: [] for score in ["R2 Score", "MAE", "MSE"]} for model in model_names}
 
 for model_name in tqdm(model_names, desc="Models"):
-    results_df = nested_cross_validation(X, y, model_name=model_name)
+    results_df = pd.read_csv(f"new/{model_name}_cv_scores.csv")
     scores_data[model_name]["R2 Score"].extend(results_df["R2 Score"].tolist())
     scores_data[model_name]["MAE"].extend(results_df["MAE"].tolist())
     scores_data[model_name]["MSE"].extend(results_df["MSE"].tolist())
