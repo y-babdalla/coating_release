@@ -6,8 +6,7 @@ import seaborn as sns
 
 import matplotlib.pyplot as plt
 
-
-
+from utils.cross_validation import nested_cross_validation
 from utils.process_spectra import process_spectrum_dataframe
 import scienceplots
 import warnings
@@ -59,7 +58,7 @@ y = data["release"]
 scores_data = {model: {score: [] for score in ["R2 Score", "MAE", "MSE"]} for model in model_names}
 
 for model_name in tqdm(model_names, desc="Models"):
-    results_df = pd.read_csv(f"new/{model_name}_cv_scores.csv")
+    results_df = nested_cross_validation(X=X, y=y, model_name=model_name)
     scores_data[model_name]["R2 Score"].extend(results_df["R2 Score"].tolist())
     scores_data[model_name]["MAE"].extend(results_df["MAE"].tolist())
     scores_data[model_name]["MSE"].extend(results_df["MSE"].tolist())
